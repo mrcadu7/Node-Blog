@@ -61,6 +61,57 @@ router.post('/categorias/nova', (req, res) => {
     }
 })
 
+router.get('/categorias/edit/:id', (req, res) => {
+    Categoria.findOne({_id: req.params.id}).then((cat) => {
+        res.render('admin/editcategorias', {cat: cat}) 
+    }).catch((err) => {
+        req.flash('error_msg', 'Esta categoria não existe')
+        res.redirect('/admin/categorias')
+    })  
+})
+
+router.post('/categorias/edit', async (req, res) => {
+    var erros = []
+    console.log(req.body)
+    if (!req.body.nome || typeof req.body.nome == undefined || req.body.nome == null) {
+        erros.push({ texto: "Nome inválido" })
+    }
+
+    if (!req.body.slug || typeof req.body.slug == undefined || req.body.nome == null) {
+        erros.push({ texto: "Slug inválido" })
+    }
+
+    if (req.body.nome.length < 2) {
+        erros.push({ texto: "Nome da categoria muito pequeno" })
+    }
+
+    if (erros.length > 0) {
+        res.render("admin/categorias", { erros: erros })
+    } else {
+        var update = { nome: req.body.nome, slug: req.body.slug };
+        console.log(update)
+        try {
+            await Categoria.findOneAndUpdate({ _id: req.body.id }, update, { runValidators: true });
+            req.flash("success_msg", "Categoria editada com sucesso!!")
+            res.redirect("/admin/categorias")
+        } catch (err) {
+            console.log(err.message)
+            req.flash("error_msg", "Houve um erro interno ao salvar a edição da categoria")
+            res.redirect("/admin/categorias")
+        }
+    }
+})
+
+router.post('/categorias/deletar', (req, res) => {
+    Categoria.deleteOne({_id: req.body.id}).then(() => {
+        req.flash('success_msg', 'Categoria deletada com sucesso')
+        res.redirect('/admin/categorias')
+    }).catch((err) => {
+        req.flash('error_msg', 'Erro ao deletar categoria, tente novamente')
+        res.redirect('/admin/categorias')
+    })
+})
+    
 
 router.get('/teste', (req, res) => {
     res.send('Pagina de teste')

@@ -20,6 +20,7 @@
     const usuarios = require('./routes/usuario');
     const passport = require('passport');
     require('./config/auth')(passport);
+    const db = require('./config/db');
     
 
 
@@ -55,7 +56,7 @@
 
     // Mongoose
         mongoose.Promise = global.Promise;
-        mongoose.connect('mongodb://localhost/nodeblog').then(() => {
+        mongoose.connect(db.connectionString).then(() => {
             console.log('Conectado ao MongoDB');
         }).catch((err) => {
             console.log('Erro ao conectar ao MongoDB' + err);
@@ -134,7 +135,7 @@
     app.use('/usuarios', usuarios)
 
 // Outros
-    const PORT = 3000;
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
         console.log(`Servidor rodando no link http://localhost:${PORT}`);
     })

@@ -1,4 +1,10 @@
 const fs = require('fs');
+const path = 'config/db.js';
+
+if (fs.existsSync(path)) {
+    console.log('O arquivo db.js já existe.');
+    process.exit();
+}
 
 const content = `
 if(process.env.NODE_ENV == 'production') {
@@ -12,7 +18,7 @@ if(process.env.NODE_ENV == 'production') {
 }
 `;
 
-fs.writeFile('db.js', content, err => {
+fs.writeFile(path, content, err => {
     if (err) {
         console.error('Erro ao criar o arquivo db.js:', err);
     } else {
